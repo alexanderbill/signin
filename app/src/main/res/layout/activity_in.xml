@@ -1,0 +1,77 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/datepicker"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:background="@color/button_selector"
+        android:padding="10dp"
+        android:text="选择上课日期"
+        android:layout_marginBottom="10dp"
+        />
+
+    <RadioGroup android:id="@+id/radioGroup" android:contentDescription="性别" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/radioBZ" android:text="班长" android:checked="true"></RadioButton>
+        <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/radioYG" android:text="义工"></RadioButton>
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/openfile"
+            android:text="文件导入"
+            android:enabled="false"
+            android:background="@color/button_selector"
+            android:layout_marginRight="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/check"
+            android:enabled="false"
+            android:background="@color/button_selector"
+            android:layout_weight="0.6"
+            android:text="检查" android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/totalin"
+            android:enabled="false"
+            android:background="@color/button_selector"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:text="全量录入" android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/partin"
+            android:enabled="false"
+            android:background="@color/button_selector"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:text="增量录入" android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:id="@+id/edit_total"
+        android:background="#ccc"
+        android:hint="在此录入数据\n第一列为姓名\n第二列为性别\n第三列为电话\n第四列为部组\n\n不能出现空行"
+        android:gravity="top"
+        android:singleLine="false"
+        />
+</LinearLayout>
