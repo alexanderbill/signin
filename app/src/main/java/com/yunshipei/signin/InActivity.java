@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -18,6 +19,15 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellReference;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -201,6 +211,45 @@ public class InActivity extends AppCompatActivity {
                     Uri uri = data.getData();
                     String path = FileUtils.getPath(this, uri);
                     Log.d("leizhou", path);
+
+                    try {
+                        String result = "";
+                        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+                        org.apache.poi.ss.usermodel.Sheet sheet1 = wb.getSheetAt(0);
+                        for (Row row : sheet1) {
+                            int i = 0;
+                            String r1 = "";
+                            for (Cell cell : row) {
+                                if (i > 3) {
+                                    break;
+                                }
+
+                                CellReference cellRef = new CellReference(row.getRowNum(), cell.getColumnIndex());
+
+                                switch (cell.getCellType()) {
+                                    case Cell.CELL_TYPE_STRING:
+                                        r1 += " " + cell.getRichStringCellValue().getString();
+                                        break;
+                                    case Cell.CELL_TYPE_NUMERIC:
+                                        if (DateUtil.isCellDateFormatted(cell)) {
+                                            r1 += " " + String.valueOf(cell.getDateCellValue());
+                                        } else {
+                                            double phone = cell.getNumericCellValue();
+                                            r1 += " " + new DecimalFormat("###").format(phone);
+                                        }
+                                        break;
+                                    default:
+                                        System.out.println();
+                                }
+                                i++;
+                            }
+                            result += r1.substring(1) + "\n";
+                        }
+                        et.setText(result);
+                    } catch (Exception e) {
+
+                    }
+
                 }
                 break;
         }
