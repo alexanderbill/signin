@@ -1,5 +1,6 @@
 package com.yunshipei.signin;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,6 +18,7 @@ import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,7 +32,7 @@ import java.util.Locale;
 /**
  * Created by ubuntu on 16-8-1.
  */
-public class SignActivity extends AppCompatActivity {
+public class SignActivity extends Activity {
     private String date = "";
     private EditText et;
     private UserAdapter adapter;
@@ -54,17 +56,34 @@ public class SignActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         date = String.format("%s-%s-%s", year, monthOfYear, dayOfMonth);
-                        Cursor cursor = MainActivity.db.getAllContacts(date);
-                        Toast.makeText(SignActivity.this, "本次报名表有" + String.valueOf(cursor.getCount()) + "条记录", Toast.LENGTH_SHORT).show();
+                        RadioGroup radioGroup = (RadioGroup)findViewById(R.id.radioGroup);
+                        int id = radioGroup.getCheckedRadioButtonId();
+                        String type = "0";
+                        if (id != R.id.radioBZ) {
+                            type = "1";
+                        }
+                        Cursor cursor = MainActivity.db.getAllContacts(date, type);
+
                         ListView listView = (ListView) SignActivity.this.findViewById(R.id.list);
+                        findViewById(R.id.datepicker).setVisibility(View.GONE);
+                        radioGroup.setVisibility(View.GONE);
                         adapter = new UserAdapter(SignActivity.this, R.layout.list_item);
+                        int signed = 0;
+                        int man = 0;
                         if (cursor.getCount() != 0) {
                             cursor.moveToFirst();
                             do {
+                                if (cursor.getInt(4) == 1) {
+                                    signed++;
+                                    if (cursor.getString(1).equals("男")) {
+                                        man++;
+                                    }
+                                }
                                 adapter.add(new User(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4), cursor.getString(5), cursor.getInt(6)));
                             } while (cursor.moveToNext());
                             adapter.sort();
                         }
+                        Toast.makeText(SignActivity.this, "本次报名表有" + String.valueOf(cursor.getCount()) + "条记录," + signed + "已签到" + man + "男", Toast.LENGTH_SHORT).show();
                         listView.setAdapter(adapter);
                     }
                 }, year, month, day);
@@ -83,7 +102,7 @@ public class SignActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!TextUtils.isEmpty(date)) {
-                    adapter.search(s.toString());
+                    adapter.search(s.toString().toLowerCase());
                 } else {
                     Toast.makeText(SignActivity.this, "请先选择签到日期", Toast.LENGTH_SHORT).show();
                 }
@@ -101,7 +120,7 @@ public class SignActivity extends AppCompatActivity {
         public final String mName;
         public final String mSex;
         public final String mDepartment;
-        public final int mChecked;
+        public int mChecked;
         public final String mNick;
         public final int mRowId;
 
@@ -198,21 +217,41 @@ public class SignActivity extends AppCompatActivity {
             TextView phoneText = (TextView) view.findViewById(R.id.phone);
             TextView sexText = (TextView) view.findViewById(R.id.sex);
             TextView depText = (TextView) view.findViewById(R.id.department);
-            CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkbok);
+            final CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkbok);
+            final CheckBox lateCheckBox = (CheckBox) view.findViewById(R.id.late_checkbok);
 
+            lateCheckBox.setEnabled(false);
+            checkBox.setEnabled(false);
             nameText.setText(user.getName());
             phoneText.setText(user.getPhone());
             sexText.setText(user.getSex());
             depText.setText(user.getDepartment());
-            checkBox.setChecked(user.mChecked == 1);
-
-            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    MainActivity.db.updateContact(user.mRowId, isChecked ? 1 : 0);
-                }
-            });
-
+            if (user.mChecked == 1) {
+                checkBox.setChecked(true);
+            } else if (user.mChecked == 2) {
+                lateCheckBox.setChecked(true);
+            } else {
+                lateCheckBox.setEnabled(true);
+                checkBox.setEnabled(true);
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        MainActivity.db.updateContact(user.mRowId, 1);
+                        user.mChecked = 1;
+                        lateCheckBox.setEnabled(false);
+                        checkBox.setEnabled(false);
+                    }
+                });
+                lateCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        MainActivity.db.updateContact(user.mRowId, 2);
+                        user.mChecked = 2;
+                        lateCheckBox.setEnabled(false);
+                        checkBox.setEnabled(false);
+                    }
+                });
+            }
             return view;
         }
     }

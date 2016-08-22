@@ -16,7 +16,7 @@
         android:layout_marginBottom="10dp"
         />
 
-    <RadioGroup android:id="@+id/radioGroup" android:contentDescription="性别" android:layout_width="wrap_content" android:layout_height="wrap_content">
+    <RadioGroup android:id="@+id/radioGroup" android:contentDescription="性别" android:layout_width="wrap_content" android:layout_height="wrap_content" android:visibility="gone">
         <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/radioBZ" android:text="班长" android:checked="true"></RadioButton>
         <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/radioYG" android:text="义工"></RadioButton>
     </RadioGroup>

@@ -121,6 +121,11 @@ public class DBAdapter {
     {
         return db.query(DATABASE_TABLE, new String[]{KEY_NAME, KEY_SEX, KEY_EMAIL, KEY_DEPARTMENT, KEY_CHECKED, KEY_NICK, KEY_ROWID}, KEY_TAG + " = \"" + tag + "\"", null, null, null, null);
     }
+    //retreves all the contacts
+    public Cursor getAllContacts(String tag, String type)
+    {
+        return db.query(DATABASE_TABLE, new String[]{KEY_NAME, KEY_SEX, KEY_EMAIL, KEY_DEPARTMENT, KEY_CHECKED, KEY_NICK, KEY_ROWID}, KEY_TAG + " = \"" + tag + "\" and " + KEY_TYPE + " = \"" + type + "\"", null, null, null, null);
+    }
 
     //checkin
     public boolean updateContact(long rowId, int checked)

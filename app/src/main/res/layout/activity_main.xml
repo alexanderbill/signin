@@ -8,39 +8,40 @@
 
     <Button
         android:id="@+id/thisin"
-        android:enabled="false"
+        android:enabled="true"
         android:layout_marginBottom="20dp"
         android:background="@color/button_selector"
-        android:text="录入本次报名表" android:layout_width="wrap_content"
+        android:text="录入名单" android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/thissign"
-        android:enabled="false"
+        android:enabled="true"
         android:layout_marginBottom="20dp"
         android:background="@color/button_selector"
-        android:text="本次报名签到" android:layout_width="wrap_content"
+        android:text="报名签到" android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/thisout"
-        android:enabled="false"
+        android:enabled="true"
         android:layout_marginBottom="20dp"
         android:background="@color/button_selector"
-        android:text="本次签到数据导出" android:layout_width="wrap_content"
+        android:text="签到数据导出" android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/query"
+        android:visibility="gone"
         android:enabled="false"
         android:layout_marginBottom="20dp"
         android:background="@color/button_selector"
         android:text="考勤查询" android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-
     <Button
         android:id="@+id/total"
+        android:visibility="gone"
         android:text="录入总表" android:layout_width="wrap_content"
         android:layout_marginBottom="20dp"
         android:background="@color/button_selector"

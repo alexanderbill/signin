@@ -1,13 +1,17 @@
 package com.yunshipei.signin;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -36,15 +40,41 @@ import java.util.Locale;
 /**
  * Created by ubuntu on 16-8-1.
  */
-public class InActivity extends AppCompatActivity {
+public class InActivity extends Activity {
     private final int FILE_SELECT_CODE = 10;
     private String date = "";
     private EditText et;
+    private String mBanzhang;
+    private String mYigong;
+
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    //persmission method.
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have read or write permission
+        int writePermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int readPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if (writePermission != PackageManager.PERMISSION_GRANTED || readPermission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_in);
+
+        verifyStoragePermissions(this);
 
         findViewById(R.id.datepicker).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +101,8 @@ public class InActivity extends AppCompatActivity {
         findViewById(R.id.openfile).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showFileChooser();
+                // showFileChooser();
+                doRead("/sdcard/bz.xls");
             }
         });
 
@@ -79,27 +110,12 @@ public class InActivity extends AppCompatActivity {
         findViewById(R.id.check).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String text = et.getText().toString();
-                String[] lines = text.split("\n");
-                for (int i = 0; i < lines.length; i++) {
-                    String line = lines[i];
-                    String[] records = line.split("\\s+");
-                    if (records.length > 3
-                            && PinyinHelper.getInstance().isHanzi(records[0])
-                            && (records[1].compareTo("男") == 0 || records[1].compareTo("女") == 0)
-                            && records[0].length() <= 4 && records[0].length() > 1
-                            && PinyinHelper.getInstance().isPhone(records[2])) {
-
-                    } else {
-                        findViewById(R.id.totalin).setEnabled(false);
-                        findViewById(R.id.partin).setEnabled(false);
-                        Toast.makeText(InActivity.this, line + "格式错误", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                if (TextUtils.isEmpty(mBanzhang) && TextUtils.isEmpty(mYigong)) {
+                    doCheck(et.getText().toString());
+                } else {
+                    doCheck(mBanzhang);
+                    // doCheck(mYigong);
                 }
-                Toast.makeText(InActivity.this, "格式校验正确", Toast.LENGTH_SHORT).show();
-                findViewById(R.id.totalin).setEnabled(true);
-                findViewById(R.id.partin).setEnabled(true);
             }
         });
 
@@ -158,14 +174,43 @@ public class InActivity extends AppCompatActivity {
         });
     }
 
-    private void doInsert() {
-        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
-        int id = radioGroup.getCheckedRadioButtonId();
-        String type = "0";
-        if (id != R.id.radioBZ) {
-            type = "1";
+
+    private void doCheck(String text) {
+        String[] lines = text.split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            if (TextUtils.isEmpty(line)) {
+                continue;
+            }
+            String[] records = line.split("\\s+");
+            if (records.length > 0
+                    && PinyinHelper.getInstance().isHanzi(records[0])
+                    //&& (records[1].compareTo("男") == 0 || records[1].compareTo("女") == 0)
+                    && records[0].length() <= 4 && records[0].length() > 1) {
+                //&& PinyinHelper.getInstance().isPhone(records[2])) {
+
+            } else {
+                findViewById(R.id.totalin).setEnabled(false);
+                findViewById(R.id.partin).setEnabled(false);
+                Toast.makeText(InActivity.this, line + "格式错误", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
-        String text = et.getText().toString();
+        Toast.makeText(InActivity.this, "格式校验正确", Toast.LENGTH_SHORT).show();
+        findViewById(R.id.totalin).setEnabled(true);
+        findViewById(R.id.partin).setEnabled(true);
+    }
+
+    private void doInsert() {
+        if (TextUtils.isEmpty(mBanzhang) && TextUtils.isEmpty(mYigong)) {
+            doInsert(et.getText().toString(), "1");
+        } else {
+            doInsert(mBanzhang, "0");
+            // doInsert(mYigong, "1");
+        }
+        Toast.makeText(InActivity.this, "记录插入成功", Toast.LENGTH_SHORT).show();
+    }
+    private void doInsert(String text, String type) {
         String[] lines = text.split("\n");
 
         Cursor cursor = MainActivity.db.getAllContacts(date);
@@ -173,7 +218,7 @@ public class InActivity extends AppCompatActivity {
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
             do {
-                arrayList.add(cursor.getString(0) + cursor.getString(1) + cursor.getString(2));
+                arrayList.add(cursor.getString(0));
             } while (cursor.moveToNext());
         }
 
@@ -182,20 +227,34 @@ public class InActivity extends AppCompatActivity {
         if (cursor1.getCount() != 0) {
             cursor1.moveToFirst();
             do {
-                arrayList1.add(cursor1.getString(0));
+                arrayList1.add(cursor1.getString(0).trim());
             } while (cursor1.moveToNext());
         }
 
         String remains = "";
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            String[] records = line.split("\\s+");
-            if (arrayList.contains(records[0] + records[1] + records[2])) {
+            String[] records = line.split(" ");
+            String name;
+            String sex = "";
+            String phone = "";
+            String depart = "";
+            if (records.length > 3) {
+                depart = records[3];
+            }
+            if (records.length > 2) {
+                phone = records[2];
+            }
+            if (records.length > 1) {
+                sex = records[1];
+            }
+            name = records[0];
+            if (arrayList.contains(records[0] + sex + phone)) {
                 remains += line + "\t已经报名\n";
-            } else if (!arrayList1.contains(records[0])) {
-                remains += line + "\t没有上课资格\n";
+            //} else if (!arrayList1.contains(records[0])) {
+            //    remains += line + "\t没有上课资格\n";
             } else {
-                MainActivity.db.insertContact(records[0], records[1], records[2], records[3], type, date);
+                MainActivity.db.insertContact(records[0], sex, phone, depart, type, date);
             }
         }
         et.setText(remains);
@@ -211,54 +270,65 @@ public class InActivity extends AppCompatActivity {
                     Uri uri = data.getData();
                     String path = FileUtils.getPath(this, uri);
                     Log.d("leizhou", path);
-
-                    try {
-                        String result = "";
-                        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
-                        org.apache.poi.ss.usermodel.Sheet sheet1 = wb.getSheetAt(0);
-                        for (Row row : sheet1) {
-                            int i = 0;
-                            String r1 = "";
-                            for (Cell cell : row) {
-                                if (i > 3) {
-                                    break;
-                                }
-
-                                CellReference cellRef = new CellReference(row.getRowNum(), cell.getColumnIndex());
-
-                                switch (cell.getCellType()) {
-                                    case Cell.CELL_TYPE_STRING:
-                                        r1 += " " + cell.getRichStringCellValue().getString();
-                                        break;
-                                    case Cell.CELL_TYPE_NUMERIC:
-                                        if (DateUtil.isCellDateFormatted(cell)) {
-                                            r1 += " " + String.valueOf(cell.getDateCellValue());
-                                        } else {
-                                            double phone = cell.getNumericCellValue();
-                                            r1 += " " + new DecimalFormat("###").format(phone);
-                                        }
-                                        break;
-                                    default:
-                                        System.out.println();
-                                }
-                                i++;
-                            }
-                            result += r1.substring(1) + "\n";
-                        }
-                        et.setText(result);
-                    } catch (Exception e) {
-
-                    }
-
+                    doRead(path);
                 }
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+    private void doRead(String path) {
+        mBanzhang = doRead(path, 0);
+        // mYigong = doRead(path, 0);
+        Toast.makeText(InActivity.this, "文件读取成功", Toast.LENGTH_SHORT).show();
+    }
+
+    private String doRead(String path, int type) {
+
+        try {
+            String result = "";
+            HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(path));
+            org.apache.poi.ss.usermodel.Sheet sheet1 = wb.getSheetAt(type);
+            for (Row row : sheet1) {
+                int i = 0;
+                String r1 = "";
+                for (Cell cell : row) {
+                    if (i > 3) {
+                        break;
+                    }
+
+                    CellReference cellRef = new CellReference(row.getRowNum(), cell.getColumnIndex());
+
+                    switch (cell.getCellType()) {
+                        case Cell.CELL_TYPE_STRING:
+                            r1 += " " + cell.getRichStringCellValue().getString();
+                            break;
+                        case Cell.CELL_TYPE_NUMERIC:
+                            if (DateUtil.isCellDateFormatted(cell)) {
+                                r1 += " " + String.valueOf(cell.getDateCellValue());
+                            } else {
+                                double phone = cell.getNumericCellValue();
+                                r1 += " " + new DecimalFormat("###").format(phone);
+                            }
+                            break;
+                        default:
+                            System.out.println();
+                    }
+                    i++;
+                }
+                if (!TextUtils.isEmpty(r1)) {
+                    result += r1.substring(1) + "\n";
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            Log.d("err", e.toString());
+        }
+        return "";
+    }
 
     private void showFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("application/vnd.ms-excel");
+        intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         try {

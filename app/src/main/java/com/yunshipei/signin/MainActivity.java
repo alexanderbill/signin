@@ -1,17 +1,15 @@
 package com.yunshipei.signin;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
-import android.support.v7.app.AppCompatActivity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     public static DBAdapter db;
+    private SharedPreferences sp;
 
     public MainActivity() {
         super();
@@ -64,20 +62,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(it);
             }
         });
-
-        Cursor cursor = MainActivity.db.getAllContacts("ALL");
-        Toast.makeText(this, "总表有" + String.valueOf(cursor.getCount()) + "条记录", Toast.LENGTH_SHORT).show();
-        if (cursor.getCount() != 0) {
-            findViewById(R.id.thisin).setEnabled(true);
-            findViewById(R.id.thissign).setEnabled(true);
-            findViewById(R.id.thisout).setEnabled(true);
-            findViewById(R.id.query).setEnabled(true);
-        } else {
-            findViewById(R.id.thisin).setEnabled(false);
-            findViewById(R.id.thissign).setEnabled(false);
-            findViewById(R.id.thisout).setEnabled(false);
-            findViewById(R.id.query).setEnabled(false);
-        }
     }
 
     @Override
