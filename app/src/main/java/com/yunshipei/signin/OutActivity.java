@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.DatePicker;
@@ -66,7 +67,7 @@ public class OutActivity extends Activity {
             public void onClick(View v) {
                 String value = doWrite("0");
                 try{
-                    String fileName = "/sdcard/" + date + "-0.txt";
+                    String fileName = Environment.getExternalStorageDirectory() + "/" + date + "-0.txt";
                     File outFile = new File(fileName);
                     if (outFile.exists()) {
                         outFile.delete();
@@ -83,7 +84,7 @@ public class OutActivity extends Activity {
 
                 value = doWrite("1");
                 try{
-                    String fileName = "/sdcard/" + date + "-1.txt";
+                    String fileName = Environment.getExternalStorageDirectory() + "/" + date + "-1.txt";
                     File outFile = new File(fileName);
                     if (outFile.exists()) {
                         outFile.delete();

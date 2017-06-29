@@ -102,7 +102,7 @@ public class InActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // showFileChooser();
-                doRead("/sdcard/bz.xls");
+                doRead(Environment.getExternalStorageDirectory() + "/bz.xls");
             }
         });
 
@@ -113,8 +113,8 @@ public class InActivity extends Activity {
                 if (TextUtils.isEmpty(mBanzhang) && TextUtils.isEmpty(mYigong)) {
                     doCheck(et.getText().toString());
                 } else {
-                    doCheck(mBanzhang);
-                    // doCheck(mYigong);
+                    doCheck(et.getText().toString());
+                    //doCheck(mYigong);
                 }
             }
         });
@@ -165,6 +165,11 @@ public class InActivity extends Activity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 findViewById(R.id.totalin).setEnabled(false);
                 findViewById(R.id.partin).setEnabled(false);
+                if (!TextUtils.isEmpty(et.getText().toString())) {
+                    findViewById(R.id.check).setEnabled(true);
+                } else {
+                    findViewById(R.id.check).setEnabled(false);
+                }
             }
 
             @Override
@@ -202,11 +207,12 @@ public class InActivity extends Activity {
     }
 
     private void doInsert() {
-        if (TextUtils.isEmpty(mBanzhang) && TextUtils.isEmpty(mYigong)) {
+        // mBanzhang = et.getText().toString();
+              if (TextUtils.isEmpty(mBanzhang) && TextUtils.isEmpty(mYigong)) {
             doInsert(et.getText().toString(), "1");
         } else {
-            doInsert(mBanzhang, "0");
-            // doInsert(mYigong, "1");
+            // doInsert(mBanzhang, "0");
+            doInsert(mYigong, "1");
         }
         Toast.makeText(InActivity.this, "记录插入成功", Toast.LENGTH_SHORT).show();
     }
@@ -277,8 +283,9 @@ public class InActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
     private void doRead(String path) {
-        mBanzhang = doRead(path, 0);
-        // mYigong = doRead(path, 0);
+        // mBanzhang = doRead(path, 1);
+        mYigong = doRead(path, 0);
+        et.setText(mYigong);
         Toast.makeText(InActivity.this, "文件读取成功", Toast.LENGTH_SHORT).show();
     }
 

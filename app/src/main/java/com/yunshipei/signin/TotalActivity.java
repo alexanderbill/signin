@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -63,7 +64,7 @@ public class TotalActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // showFileChooser();
-                doRead("/sdcard/bz.xls");
+                doRead(Environment.getExternalStorageDirectory() + "/bz1.xls");
             }
         });
 

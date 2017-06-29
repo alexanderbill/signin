@@ -21,7 +21,6 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:visibility="gone"
         android:id="@+id/phone"
         android:padding="10dp"
         android:text="17710275730"
@@ -29,7 +28,6 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:visibility="gone"
         android:id="@+id/department"
         android:padding="10dp"
         android:text="班长班"
@@ -46,6 +44,7 @@
     <CheckBox
         android:id="@+id/late_checkbok"
         android:text="迟到签到"
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 </LinearLayout>

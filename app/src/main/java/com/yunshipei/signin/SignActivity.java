@@ -58,11 +58,7 @@ public class SignActivity extends Activity {
                         date = String.format("%s-%s-%s", year, monthOfYear, dayOfMonth);
                         RadioGroup radioGroup = (RadioGroup)findViewById(R.id.radioGroup);
                         int id = radioGroup.getCheckedRadioButtonId();
-                        String type = "0";
-                        if (id != R.id.radioBZ) {
-                            type = "1";
-                        }
-                        Cursor cursor = MainActivity.db.getAllContacts(date, type);
+                        Cursor cursor = MainActivity.db.getAllContacts(date, "1");
 
                         ListView listView = (ListView) SignActivity.this.findViewById(R.id.list);
                         findViewById(R.id.datepicker).setVisibility(View.GONE);
@@ -147,7 +143,7 @@ public class SignActivity extends Activity {
         }
 
         public String getDepartment() {
-            return this.mSex;
+            return this.mDepartment;
         }
     }
 
